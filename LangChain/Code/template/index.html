@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Query Chatbot</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            margin: 20px;
+        }
+        .chat-box {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .chat-history {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            height: 300px;
+            overflow-y: scroll;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+        }
+        .chat-message.user {
+            text-align: right;
+        }
+        .chat-message.bot {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-box">
+            <h2 class="text-center">Query Chatbot</h2>
+            <div class="chat-history" id="chat-history">
+                <!-- Chat history will be dynamically updated here -->
+            </div>
+            <form id="chat-form">
+                <div class="form-group">
+                    <label for="user-query">Enter your question:</label>
+                    <input type="text" class="form-control" id="user-query" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Ask</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userQuery = document.getElementById('user-query').value;
+
+            // Add user question to chat history
+            const chatHistory = document.getElementById('chat-history');
+            const userMessage = document.createElement('div');
+            userMessage.className = 'chat-message user';
+            userMessage.textContent = 'User: ' + userQuery;
+            chatHistory.appendChild(userMessage);
+
+            // Send user question to the backend
+            fetch('/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: userQuery }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Add bot response to chat history
+                const botMessage = document.createElement('div');
+                botMessage.className = 'chat-message bot';
+                botMessage.textContent = 'Bot: ' + data.response;
+                chatHistory.appendChild(botMessage);
+
+                // Clear the input field
+                document.getElementById('user-query').value = '';
+            });
+        });
+    </script>
+</body>
+</html>
